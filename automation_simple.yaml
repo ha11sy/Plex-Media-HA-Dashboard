@@ -1,0 +1,21 @@
+# FIXED VERSION - Uses wait_template instead
+# Copy this into Home Assistant Automation UI
+# Settings → Automations & Scenes → Create Automation → Edit in YAML
+
+alias: Plex - Wake Selected Player
+description: Wakes up device and waits until it's ready for Plex playback
+trigger:
+  - platform: state
+    entity_id: input_select.plex_active_player
+condition: []
+action:
+  - service: media_player.turn_on
+    target:
+      entity_id: "{{ trigger.to_state.state }}"
+  - wait_template: "{{ is_state(trigger.to_state.state, 'idle') or is_state(trigger.to_state.state, 'playing') }}"
+    timeout:
+      seconds: 30
+    continue_on_timeout: true
+  - delay:
+      seconds: 2
+mode: restart
